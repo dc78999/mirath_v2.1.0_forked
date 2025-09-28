@@ -53,3 +53,19 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+#########################################
+# CMake & Out-of-Source Build Files
+#########################################
+
+# Common out-of-source build directories
+/build/
+/out/
+/bin/
+
+# Cache files and directories generated during CMake configuration
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
