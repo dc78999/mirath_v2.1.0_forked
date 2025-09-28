@@ -62,7 +62,7 @@ dkms.conf
 /build/
 /out/
 /bin/
-
+**/build/
 # Cache files and directories generated during CMake configuration
 CMakeCache.txt
 CMakeFiles/
