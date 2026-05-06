@@ -9,6 +9,17 @@ endif()
 
 set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -Wall -ftree-vectorize -funroll-loops -fomit-frame-pointer -fno-stack-protector -Wextra")
 
+option(MIRATH_TARGET_ARM_A53 "Tune compiler for Cortex-A53" OFF)
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" MIRATH_SYSTEM_PROCESSOR_LOWER)
+if (MIRATH_TARGET_ARM_A53)
+    if (MIRATH_SYSTEM_PROCESSOR_LOWER MATCHES "^(aarch64|arm64|armv8.*|armv7.*|arm.*)$")
+        add_compile_options(-mcpu=cortex-a53 -mtune=cortex-a53)
+        message(STATUS "Target tuning: Cortex-A53")
+    else ()
+        message(WARNING "MIRATH_TARGET_ARM_A53=ON ignored for non-ARM processor '${CMAKE_SYSTEM_PROCESSOR}'.")
+    endif ()
+endif ()
+
 if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
     set(CMAKE_ASM_FLAGS "-x assembler-with-cpp -Wa,-defsym,old_gas_syntax=1 -Wa,-defsym,no_plt=1")
 endif()

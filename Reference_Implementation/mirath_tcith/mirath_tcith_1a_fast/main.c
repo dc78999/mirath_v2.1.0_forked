@@ -8,9 +8,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#if !defined(__x86_64__) && !defined(__i386__)
+#include <time.h>
+#endif
 
 #include "rng.h"
 #include "api.h"
+
+#if defined(__x86_64__) || defined(__i386__)
 
 inline static uint64_t cpucyclesStart (void) {
     unsigned hi, lo;
@@ -40,6 +45,26 @@ inline static uint64_t cpucyclesStop (void) {
     return ((uint64_t) lo) ^ (((uint64_t) hi) << 32);
 }
 
+static const char *benchmark_unit = "CPU cycles";
+
+#else
+
+inline static uint64_t cpucyclesStart(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    return ((uint64_t)ts.tv_sec * 1000000000ULL) + (uint64_t)ts.tv_nsec;
+}
+
+inline static uint64_t cpucyclesStop(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    return ((uint64_t)ts.tv_sec * 1000000000ULL) + (uint64_t)ts.tv_nsec;
+}
+
+static const char *benchmark_unit = "ns";
+
+#endif
+
 int main(void) {
 
     unsigned long long mlen = 22;
@@ -52,7 +77,7 @@ int main(void) {
     unsigned char sk[CRYPTO_SECRETKEYBYTES];
     unsigned char sm[CRYPTO_BYTES + mlen];
 
-    unsigned long long t1, t2, t3, t4, t5, t6;
+    uint64_t t1, t2, t3, t4, t5, t6;
 
     unsigned char seed[48] = {0};
 //    (void)syscall(SYS_getrandom, seed, 48, 0);
@@ -74,19 +99,19 @@ int main(void) {
         printf("crypto_sign: Failed\n");
         return -1;
     }
-    t4 = cpucyclesStart();
+    t4 = cpucyclesStop();
 
     t5 = cpucyclesStart();
     if (crypto_sign_open(m, &mlen, sm, smlen, pk) != 0) {
         printf("crypto_sign_open: Failed\n");
         return -1;
     }
-    t6 = cpucyclesStart();
+    t6 = cpucyclesStop();
 
     printf("\n mirath_tcith_1a_fast ");
-    printf("\n  crypto_sign_keypair: %" PRIu64 " CPU cycles", (uint64_t)(t2 - t1));
-    printf("\n  crypto_sign:         %" PRIu64 " CPU cycles", (uint64_t)(t4 - t3));
-    printf("\n  crypto_sign_open:    %" PRIu64 " CPU cycles", (uint64_t)(t6 - t5));
+    printf("\n  crypto_sign_keypair: %" PRIu64 " %s", (t2 - t1), benchmark_unit);
+    printf("\n  crypto_sign:         %" PRIu64 " %s", (t4 - t3), benchmark_unit);
+    printf("\n  crypto_sign_open:    %" PRIu64 " %s", (t6 - t5), benchmark_unit);
     printf("\n\n");
     printf("\n sk: "); for(int k = 0 ; k < CRYPTO_SECRETKEYBYTES ; ++k) printf("%02x", sk[k]);
     printf("\n pk: "); for(int k = 0 ; k < CRYPTO_PUBLICKEYBYTES ; ++k) printf("%02x", pk[k]);
