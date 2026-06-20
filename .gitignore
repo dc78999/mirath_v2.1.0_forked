@@ -73,3 +73,4 @@ CTestTestfile.cmake
 
 # MISC files
 .DS_Store
+Supporting_Documentation/*
