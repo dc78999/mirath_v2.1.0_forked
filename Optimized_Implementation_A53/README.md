@@ -1,6 +1,6 @@
 # Mirath - Cortex-A53 Optimized Implementation
 
-This directory contains the optimized implementation of **Mirath** (v2.1.0) targeting the **ARM Cortex-A53** architecture (e.g., Raspberry Pi Zero 2 W). 
+This directory contains the optimized implementation of **Mirath** (v2.1.0) targeting the **ARM Cortex-A53** processor (target: Raspberry Pi Zero 2 W). 
 
 ## Optimizations
 
